@@ -74,7 +74,8 @@ void initializeMap(cityMapCoords map[])
     {
         city.setX(X_LOCS[i]);  // Set the x-coordinate.
         city.setY(Y_LOCS[i]);  // Set the y-coordinate.
-        map[i] = city;  // Add that (x, y) point to the map.
+        city.setProfit(cityProfits[i]); // Set the profit.
+        map[i] = city;  // Add that (x, y) point and profit to the map.
     }
 }
 
@@ -115,7 +116,7 @@ void getFitness(tours &population)
 
     popSize = population.getTourCount();  // Get how many chromosomes we have in our population.
 
-    population.getTour(minimum(population), currentChrom);  // Get the chromosome that has the shortest tour.
+    //population.getTour(minimum(population), currentChrom);  // Get the chromosome that has the shortest tour.
 
     // Set all the total distances as the fitnesses.
     for(int i = 0; i <= popSize - 1; i++)
@@ -484,7 +485,7 @@ void printBestFromPopulation(tours &population)
     {
         population.getTour(i, currentChrom);  // Grab the chromosome.
 
-        if(currentChrom.getFitness() > 80.0)  // If the chromosome's fitness is better than 80...
+        if(currentChrom.getTotal() < 120.0)  // If the chromosome's fitness is better than 80...
         {
             std::cout << "\nPath of the salesman: ";
             for(int j = 0; j <= maxCities - 1; j++)  // Print out the tour.
@@ -499,7 +500,8 @@ void printBestFromPopulation(tours &population)
                 }
             }
 
-            std::cout << "\n\nDistance(fitness) of Tour = " << currentChrom.getTotal();
+            std::cout << "\n\nDistance of Tour = " << currentChrom.getTotal();
+            std::cout << "\n Profit of the Tour = " << currentChrom.getProfitTotal();
         }
     }
 }
@@ -515,25 +517,35 @@ int getRandomNumber(int low, int high)
 void getTotalDistance(tours &population, cityMapCoords map[], int chromoIndex)
 {
     tourChroms currentChromo;  // Variable that allows access to any chromosome.
-    double tempTotal;  // Variable that holds the temporary total distance of a tour.
+    double tempDistTotal = 0;  // Variable that holds the temporary total distance of a tour.
+    int tempProfitTotal = 0;  // Variable that holds the temporary total profit of the tour.
+    cityMapCoords currentCity;
 
     // Get a tour.
     population.getTour(chromoIndex, currentChromo);
 
-    // Now add up all the distances between the cities.
+    // Now add up all the distances and profits for the cities.
     for(int i = 0; i <= maxCities - 1; i++)
     {
+        currentCity = map[i];
         if(i == maxCities - 1)  // If it is the last city.
         {
-            tempTotal = currentChromo.getTotal();  // Get the total.
-            tempTotal += getDistance(map, currentChromo.getData(maxCities - 1), currentChromo.getData(0));  // Add final distance to the total.
-            currentChromo.setTotal(tempTotal);  // Set the total.
+            currentCity = map[maxCities - 1];
+            tempDistTotal = currentChromo.getTotal();  // Get the total.
+            tempProfitTotal = currentChromo.getProfitTotal();
+            tempProfitTotal += currentCity.getProfit();
+            currentChromo.setProfitTotal(tempProfitTotal);
+            tempDistTotal += getDistance(map, currentChromo.getData(maxCities - 1), currentChromo.getData(0));  // Add final distance to the total.
+            currentChromo.setTotal(tempDistTotal);  // Set the total.
         }
         else  // Otherwise, it is just another distance to add.
         {
-            tempTotal = currentChromo.getTotal();  // Get the total.
-            tempTotal += getDistance(map, currentChromo.getData(i), currentChromo.getData(i + 1));  // Add that distance to the total.
-            currentChromo.setTotal(tempTotal);  // Set the total.
+            tempDistTotal = currentChromo.getTotal();  // Get the total.
+            tempProfitTotal = currentChromo.getProfitTotal();
+            tempProfitTotal += currentCity.getProfit();
+            currentChromo.setProfitTotal(tempProfitTotal);
+            tempDistTotal += getDistance(map, currentChromo.getData(i), currentChromo.getData(i + 1));  // Add that distance to the total.
+            currentChromo.setTotal(tempDistTotal);  // Set the total.
         }
     }
 

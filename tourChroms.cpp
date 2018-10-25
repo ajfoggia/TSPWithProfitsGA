@@ -3,7 +3,7 @@
 tourChroms::tourChroms()
 {
     chromTotal = 0.0;
-    chromAge = 0;
+    profitTotal = 0;
     chromSelectionProbability = 0.0;
 }
 
@@ -15,6 +15,7 @@ tourChroms::tourChroms(const tourChroms& chrom)
         chromData[i] = chrom.getData(i);
     }
     chromTotal = chrom.getTotal();
+    profitTotal = chrom.getProfitTotal();
     chromFitness = chrom.getFitness();
     isChromSelected = chrom.getSelected();
     chromSelectionProbability = chrom.getSelectionProbability();
@@ -30,6 +31,7 @@ const tourChroms& tourChroms::operator= (const tourChroms& chrom)
             chromData[i] = chrom.getData(i);
         }
         chromTotal = chrom.getTotal();
+        profitTotal = chrom.getProfitTotal();
         chromFitness = chrom.getFitness();
         isChromSelected = chrom.getSelected();
         chromSelectionProbability = chrom.getSelectionProbability();
@@ -56,6 +58,16 @@ double tourChroms::getTotal() const
 void tourChroms::setTotal(double totalValue)
 {
     chromTotal = totalValue;
+}
+
+int tourChroms::getProfitTotal() const
+{
+    return profitTotal;
+}
+
+void tourChroms::setProfitTotal(int profitValue)
+{
+    profitTotal = profitValue;
 }
 
 double tourChroms::getFitness() const

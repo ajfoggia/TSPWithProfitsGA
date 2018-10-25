@@ -16,5 +16,6 @@ const int maxChromosomeShuffles = 20;
 const int maxCities = 8;
 const int X_LOCS[] = {30, 40, 40, 29, 19, 9, 9, 20};
 const int Y_LOCS[] = {5, 10, 20, 25, 25, 19, 9, 5};
+const int cityProfits[] = {10, 5, 17, 2, 9, 11, 20, 7};
 
 #endif //QAPGENETICALGORITHM_GLOBALS_H

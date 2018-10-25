@@ -9,19 +9,21 @@ class tourChroms
 private:
     int     chromData[maxCities];
     double  chromTotal;
+    int     profitTotal;
     double  chromFitness;
     bool    isChromSelected;
-    int     chromAge;
     double  chromSelectionProbability;
 
 public:
     tourChroms();
     tourChroms(const tourChroms& chrom); // copy constructor.
-    const tourChroms& operator= (const tourChroms& chrom); // Assignment operator overload.
+    const   tourChroms& operator= (const tourChroms& chrom); // Assignment operator overload.
     int     getData(int index) const;
     void    setData(int index, int value);
     double  getTotal() const;
     void    setTotal(double totalValue);
+    int     getProfitTotal() const;
+    void    setProfitTotal(int profitValue);
     double  getFitness() const;
     void    setFitness(double fitnessValue);
     bool    getSelected() const;

@@ -4,6 +4,7 @@ cityMapCoords::cityMapCoords(const cityMapCoords& city)
 {
     xCoord = city.getX();
     yCoord = city.getY();
+    cProfits = city.getProfit();
 }
 
 const cityMapCoords& cityMapCoords::operator= (const cityMapCoords& city)
@@ -12,6 +13,7 @@ const cityMapCoords& cityMapCoords::operator= (const cityMapCoords& city)
     {
         xCoord = city.getX();
         yCoord = city.getY();
+        cProfits = city.getProfit();
     }
     return *this;
 }
@@ -34,4 +36,14 @@ int cityMapCoords::getY() const
 void cityMapCoords::setY(int yCoordinate)
 {
     yCoord = yCoordinate;
+}
+
+int cityMapCoords::getProfit() const
+{
+    return cProfits;
+}
+
+void cityMapCoords::setProfit(int cProfit)
+{
+    cProfits = cProfit;
 }

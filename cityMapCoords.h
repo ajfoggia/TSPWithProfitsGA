@@ -9,6 +9,7 @@ class cityMapCoords
 private:
     int xCoord;  // Variable that holds the x-coordinate of a city.
     int yCoord;  // Variable that holds the y-coordinate of a city.
+    int cProfits; // Variable that holds the profit of a city.
 
 public:
     cityMapCoords(){};
@@ -18,6 +19,8 @@ public:
     void setX(int xCoordinate);  // Setter function that sets a city's x-coordinate.
     int getY() const;  // Getter function that gets a city's y-coordinate.
     void setY(int yCoordinate);  // Setter function that sets a city's y-coordinate.
+    int getProfit() const; // Getter function that gets a city's profit.
+    void setProfit(int cProfit);  // Setter function that sets a city's profit.
 
 };
 
