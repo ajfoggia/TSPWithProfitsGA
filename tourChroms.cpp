@@ -7,36 +7,32 @@ tourChroms::tourChroms()
     chromSelectionProbability = 0.0;
 }
 
-tourChroms::tourChroms(const tourChroms& aChromosome)
+tourChroms::tourChroms(const tourChroms& chrom)
 {
     // Copy constructor.
     for(int i = 0; i <= maxCities - 1; i++)
     {
-        chromData[i] = aChromosome.getData(i);
+        chromData[i] = chrom.getData(i);
     }
-    //chromRegion = aChromosome.getRegion();
-    chromTotal = aChromosome.getTotal();
-    chromFitness = aChromosome.getFitness();
-    isChromSelected = aChromosome.getSelected();
-    chromAge = aChromosome.getAge();
-    chromSelectionProbability = aChromosome.getSelectionProbability();
+    chromTotal = chrom.getTotal();
+    chromFitness = chrom.getFitness();
+    isChromSelected = chrom.getSelected();
+    chromSelectionProbability = chrom.getSelectionProbability();
 }
 
-const tourChroms& tourChroms::operator= (const tourChroms& aChromosome)
+const tourChroms& tourChroms::operator= (const tourChroms& chrom)
 {
     // Assignment operator overload.
-    if(this != &aChromosome)
+    if(this != &chrom)
     {
         for(int i = 0; i <= maxCities - 1; i++)
         {
-            chromData[i] = aChromosome.getData(i);
+            chromData[i] = chrom.getData(i);
         }
-        //chromRegion = aChromosome.getRegion();
-        chromTotal = aChromosome.getTotal();
-        chromFitness = aChromosome.getFitness();
-        isChromSelected = aChromosome.getSelected();
-        chromAge = aChromosome.getAge();
-        chromSelectionProbability = aChromosome.getSelectionProbability();
+        chromTotal = chrom.getTotal();
+        chromFitness = chrom.getFitness();
+        isChromSelected = chrom.getSelected();
+        chromSelectionProbability = chrom.getSelectionProbability();
     }
 
     return *this;
@@ -51,11 +47,6 @@ void tourChroms::setData(int index, int value)
 {
     chromData[index] = value;
 }
-
-//int tourChroms::getRegion() const
-//{
-  //  return chromRegion;
-//}
 
 double tourChroms::getTotal() const
 {
@@ -82,14 +73,9 @@ bool tourChroms::getSelected() const
     return isChromSelected;
 }
 
-void tourChroms::setSelected(bool selectedValue)
+void tourChroms::setSelected(bool isSelected)
 {
-    isChromSelected = selectedValue;
-}
-
-int tourChroms::getAge() const
-{
-    return chromAge;
+    isChromSelected = isSelected;
 }
 
 double tourChroms::getSelectionProbability() const
@@ -97,7 +83,7 @@ double tourChroms::getSelectionProbability() const
     return chromSelectionProbability;
 }
 
-void tourChroms::setSelectionProbability(double spValue)
+void tourChroms::setSelectionProbability(double probValue)
 {
-    chromSelectionProbability = spValue;
+    chromSelectionProbability = probValue;
 }

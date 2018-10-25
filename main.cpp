@@ -1,7 +1,7 @@
 // Alex Foggia
 // This program uses a genetic algorithm to find a possible solution to an instance of
 // the Traveling Salesman Problem.
-// Two different types of selection: roulette & tournament
+// Two different types of selection: roulette & 2-tournament
 // Crossover: partially mapped
 // Mutation: simple exchange of two numbers in the permutation.
 

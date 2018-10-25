@@ -14,7 +14,6 @@ const int maxChromosomeShuffles = 20;
 // These last four are all dependent on each other.
 // Any one can't be modified without having to recalculate the others.
 const int maxCities = 8;
-const double TARGET = 86.6299;  // Number for algorithm to find.
 const int X_LOCS[] = {30, 40, 40, 29, 19, 9, 9, 20};
 const int Y_LOCS[] = {5, 10, 20, 25, 25, 19, 9, 5};
 

@@ -12,8 +12,8 @@ private:
 
 public:
     cityMapCoords(){};
-    cityMapCoords(const cityMapCoords& aCity);  // Initializes a city's coordinates.
-    const cityMapCoords& operator= (const cityMapCoords& aCity);  // Overload assignment operator.
+    cityMapCoords(const cityMapCoords& city);  // Initializes a city's coordinates.
+    const cityMapCoords& operator= (const cityMapCoords& city);  // Overload assignment operator.
     int getX() const;  // Getter function that gets a city's x-coordinate.
     void setX(int xCoordinate);  // Setter function that sets a city's x-coordinate.
     int getY() const;  // Getter function that gets a city's y-coordinate.

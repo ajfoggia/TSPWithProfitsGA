@@ -1,17 +1,17 @@
 #include "cityMapCoords.h"
 
-cityMapCoords::cityMapCoords(const cityMapCoords& aCity)
+cityMapCoords::cityMapCoords(const cityMapCoords& city)
 {
-    xCoord = aCity.getX();
-    yCoord = aCity.getY();
+    xCoord = city.getX();
+    yCoord = city.getY();
 }
 
-const cityMapCoords& cityMapCoords::operator= (const cityMapCoords& aCity)
+const cityMapCoords& cityMapCoords::operator= (const cityMapCoords& city)
 {
-    if(this != &aCity)
+    if(this != &city)
     {
-        xCoord = aCity.getX();
-        yCoord = aCity.getY();
+        xCoord = city.getX();
+        yCoord = city.getY();
     }
     return *this;
 }

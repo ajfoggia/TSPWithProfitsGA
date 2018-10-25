@@ -28,6 +28,5 @@ int     getRandomNumber(int low, int high);
 void    getTotalDistance(tours &population, cityMapCoords map[], int chromoIndex);
 double  getDistance(cityMapCoords map[], int firstCity, int secondCity);
 int     minimum(tours &population);
-int     maximum(tours &population);
 
 #endif //QAPGENETICALGORITHM_MAINCODE_H
