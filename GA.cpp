@@ -11,14 +11,20 @@ using namespace std;
 #include "cityMapCoords.h"
 #include "GA.h"
 
+int cities[populationStartSize];  // Array used to hold the amount of cities allowed to be visited by each chromosome.
+
 // Function that runs the genetic algorithm.
 void geneticAlgorithm(tours &population, cityMapCoords map[])
 {
-    int currentGen = 0;  // Variable to hold the current generation.
-    int offspringCount = 0;  // Variable to hold the number of offspring we have generated so far.
-    int nextMutation;  // Variable that holds the decision of when we perform the next mutation.
-    int mutations = 0;  // Variable that holds the number of mutations we performed.
-    tourChroms currentChrom;  // Variable that allows us to access our chromosome information.
+    int currentGen = 0;                  // Variable to hold the current generation.
+    int offspringCount = 0;              // Variable to hold the number of offspring we have generated so far.
+    int nextMutation;                    // Variable that holds the decision of when we perform the next mutation.
+    int mutations = 0;                   // Variable that holds the number of mutations we performed.
+    int popSize = 0;                     // Variable that holds our population size.
+    double bestFitness = 0.0;            // Variable that holds the best fitness.
+    int bestIndex = 0;                   // Variable that holds the index of the chromosome with the best fitness.
+    double previousChromDistance = 0.0;  // Variable that holds the previous best tour distance.
+    tourChroms currentChrom;             // Variable that allows us to access our chromosome information.
 
     initializeChromosomes(population, map, mutations);  // Create each starting chromosome.
 
@@ -38,19 +44,50 @@ void geneticAlgorithm(tours &population, cityMapCoords map[])
 
         currentGen += 1;  // Update the number of generations.
 
-        std::cout << "Generation: " << currentGen << endl;
+        std::cout << "\nGeneration: " << currentGen << endl;
     }
 
     std::cout << "\nThe Tours from the Final Generation " << currentGen;
     std::cout << "\n--------------------------\n";
     printBestFromPopulation(population);  // Print the final chromosomes.
 
-    std::cout << "\nThe best option in this case is: ";
-    population.getTour(minimum(population), currentChrom);
-    // Print the chromosome.
-    for(int j = 0; j <= maxCities - 1; j++)
+    popSize = population.getTourCount();
+
+    // For however many chromosomes are in our population...
+    for (int i = 0; i <= popSize - 1; i++)
     {
-        if (j == maxCities - 1)
+        population.getTour(i, currentChrom);  // Get a tour.
+
+        if (currentChrom.getFitness() > bestFitness)  // Find out if this chromosome's fitness is better.
+        {
+            if (currentChrom.getFitness() == bestFitness)  // If the fitness' are the same...
+            {
+                if (currentChrom.getTotal() < previousChromDistance)  // Find out if this tour is shorter than the previous best tour.
+                {
+                    bestFitness = currentChrom.getFitness();  // If it is then that's our new best tour.
+                    bestIndex = i;  // Save its index.
+                    previousChromDistance = currentChrom.getTotal();  // Update the distance to beat.
+                }
+                else
+                {
+                    // We do nothing because technically this tour isn't better.
+                }
+            }
+            else  // Otherwise, the fitness' are not the same and we have a new best tour.
+            {
+                bestFitness = currentChrom.getFitness();  // Set the new best tour.
+                bestIndex = i;  // Save its index.
+                previousChromDistance = currentChrom.getTotal();  // Update the distance to beat.
+            }
+        }
+    }
+
+    std::cout << "\n\nThe best option in this case is: ";
+    population.getTour(bestIndex, currentChrom);
+    // Print the chromosome.
+    for(int j = 0; j <= cities[bestIndex % 25]; j++)
+    {
+        if (j == cities[bestIndex % 25])
         {
             std::cout << currentChrom.getData(j);
         }
@@ -59,6 +96,8 @@ void geneticAlgorithm(tours &population, cityMapCoords map[])
             std::cout << currentChrom.getData(j) << " -> ";
         }
     }
+    std::cout << "\nDistance of Tour = " << currentChrom.getTotal();
+    std::cout << "\nFitness of the Chromosome = " << currentChrom.getFitness() << "%";
     std::cout << "\n";
 
     std::cout << "Completed " << currentGen << " Generations.\n";
@@ -82,7 +121,7 @@ void initializeMap(cityMapCoords map[])
 // Function that initializes our chromosomes.
 void initializeChromosomes(tours &population, cityMapCoords map[], int &mutationCount)
 {
-    int shuffles;  // Variable that holds the number of swaps the mutation performs on the initial chromosomes.
+    int shuffles;     // Variable that holds the number of swaps the mutation performs on the initial chromosomes.
     int chromoIndex;  // Variable that holds the index of the chromosome currently being created in the population.
 
     for(int i = 0; i <= populationStartSize - 1; i++)  // For every chromosome in our population.
@@ -99,6 +138,9 @@ void initializeChromosomes(tours &population, cityMapCoords map[], int &mutation
         // Randomly choose the number of city shuffles to perform.
         shuffles = getRandomNumber(minChromosomeShuffles, maxChromosomeShuffles);
 
+        // Randomly populate the array with how many cities are allowed for each chromosome.
+        cities[i] = getRandomNumber(2, maxCities - 1);
+
         // Mutate the chromosome.
         exchangeMutation(population, chromoIndex, shuffles, mutationCount);
 
@@ -111,19 +153,20 @@ void initializeChromosomes(tours &population, cityMapCoords map[], int &mutation
 // Function that gets the fitness of our chromosomes. (Could be over-ruled by just using the distance functions).
 void getFitness(tours &population)
 {
-    int popSize;  // Variable that holds the population size.
+    double profitPerDistance; // Variable that holds each chromosome's population/distance ratio.
+    int popSize;              // Variable that holds the population size.
     tourChroms currentChrom;  // Variable that allows us to access each chromosomes attributes and their functions.
 
     popSize = population.getTourCount();  // Get how many chromosomes we have in our population.
-
-    //population.getTour(minimum(population), currentChrom);  // Get the chromosome that has the shortest tour.
 
     // Set all the total distances as the fitnesses.
     for(int i = 0; i <= popSize - 1; i++)
     {
         population.getTour(i, currentChrom);
 
-        currentChrom.setFitness(currentChrom.getTotal());
+        profitPerDistance = (currentChrom.getProfitTotal()/currentChrom.getTotal()) * 100;  // Convert it to a percent.
+
+        currentChrom.setFitness(profitPerDistance);  // Set that percentage as our fitness.
 
         population.setTour(i, currentChrom);
     }
@@ -132,15 +175,15 @@ void getFitness(tours &population)
 // Function that performs roulette wheel selection to decrease the population.
 void rouletteSelection(tours &population)
 {
-    int popSize;  // Variable that holds the population size.
-    int selectCounter;  // Variable that increments to check which chromosomes are selected.
-    int maximumToSelect;  // Variable that holds how many chromosomes from the population we will allow to select.
-    int rouletteSpin;  // Variable that holds our roulette spin.
-    double genTotal = 0;  // Variable that holds our generations total fitness.
-    double selTotal;  // Variable that holds the probability of the current chromosome to see if it is chosen.
-    tourChroms currentChromo;  // Variable that allows access to any chromosome.
+    int popSize;                // Variable that holds the population size.
+    int selectCounter;          // Variable that increments to check which chromosomes are selected.
+    int maximumToSelect;        // Variable that holds how many chromosomes from the population we will allow to select.
+    int rouletteSpin;           // Variable that holds our roulette spin.
+    double genTotal = 0;        // Variable that holds our generations total fitness.
+    double selTotal;            // Variable that holds the probability of the current chromosome to see if it is chosen.
+    tourChroms currentChromo;   // Variable that allows access to any chromosome.
     tourChroms selectedChromo;  // Variable that allows access to the chromosomes selected.
-    bool done;  // Flag to check if we are done checking a chromosome for selection.
+    bool done;                  // Flag to check if we are done checking a chromosome for selection.
 
     // Get how many chromosomes are in our population.
     popSize = population.getTourCount();
@@ -214,11 +257,11 @@ void rouletteSelection(tours &population)
 // Function that performs the mating of the two parents.
 void mating(tours &population, cityMapCoords map[], int &nextMutation, int &offspringCount, int &mutationCount)
 {
-    int getRand;  // Variable to hold the random number we generate.
-    int numberOfCitySwaps;  // Variable that holds the number of cities swaps that occurred.
-    int firstParent;  // Variable that holds the index of the first parent.
-    int secondParent;  // Variable that holds the index of the second parent.
-    int newOffspringIndex;  // Variable that holds the index of the new offspring.
+    int getRand;                // Variable to hold the random number we generate.
+    int numberOfCitySwaps;      // Variable that holds the number of cities swaps that occurred.
+    int firstParent;            // Variable that holds the index of the first parent.
+    int secondParent;           // Variable that holds the index of the second parent.
+    int newOffspringIndex;      // Variable that holds the index of the new offspring.
     tourChroms offspringChrom;  // Variable to hold the new offspring.
 
     // Lets create our offspring.
@@ -228,7 +271,7 @@ void mating(tours &population, cityMapCoords map[], int &nextMutation, int &offs
 
         getRand = getRandomNumber(0, 100);  // Will this parent get to mate?
 
-        if(getRand <= R_RATE * 100)  // If this parent is able to mate....
+        if(getRand <= crossoverRate * 100)  // If this parent is able to mate....
         {
             secondParent = tournamentSelection(population);  // Grab the second parent.
 
@@ -411,12 +454,12 @@ void partiallyMappedCrossover(tours &population, int firstChrom, int secondChrom
 // Function that performs mutation by just swapping two cities.
 void exchangeMutation(tours &population, int index, int exchanges, int &mutationCount)
 {
-    int numOfExchanges;  // Variable to count the number of exchanges occurred in this chromosome.
-    int tempCity;  // Variable that temporarily holds a city that is being swapped.
-    int firstCity;  // Variable that holds the index of the first city.
-    int secondCity;  // Variable that holds the index of the second city.
+    int numOfExchanges;       // Variable to count the number of exchanges occurred in this chromosome.
+    int tempCity;             // Variable that temporarily holds a city that is being swapped.
+    int firstCity;            // Variable that holds the index of the first city.
+    int secondCity;           // Variable that holds the index of the second city.
     tourChroms currentChrom;  // Variable that allows access to the chromosome we are mutating.
-    bool done = false;  // Flag to mark when we are done mutating.
+    bool done = false;        // Flag to mark when we are done mutating.
 
     population.getTour(index, currentChrom);  // Get the tour of the chromosome we are mutating.
 
@@ -476,7 +519,7 @@ void prepNextGen(tours &population)
 // Function that prints the population.
 void printBestFromPopulation(tours &population)
 {
-    int popSize;  // Variable that holds the size of the population of chromosomes.
+    int popSize;              // Variable that holds the size of the population of chromosomes.
     tourChroms currentChrom;  // Variable that creates a chromosome object to access its functions.
 
     popSize = population.getTourCount();  // Get the size of the population.
@@ -485,12 +528,12 @@ void printBestFromPopulation(tours &population)
     {
         population.getTour(i, currentChrom);  // Grab the chromosome.
 
-        if(currentChrom.getTotal() < 120.0)  // If the chromosome's fitness is better than 80...
+        if(currentChrom.getFitness() > 75)  // If the chromosome's fitness is better than 75%...
         {
-            std::cout << "\nPath of the salesman: ";
-            for(int j = 0; j <= maxCities - 1; j++)  // Print out the tour.
+            std::cout << "\n\nPath of the salesman: ";
+            for(int j = 0; j <= cities[i % 25]; j++)  // Print out the tour.
             {
-                if (j == maxCities - 1)
+                if (j == cities[i % 25])
                 {
                     std::cout << currentChrom.getData(j);
                 }
@@ -502,6 +545,7 @@ void printBestFromPopulation(tours &population)
 
             std::cout << "\n\nDistance of Tour = " << currentChrom.getTotal();
             std::cout << "\n Profit of the Tour = " << currentChrom.getProfitTotal();
+            std::cout << "\n Total fitness of chromosome = " << currentChrom.getFitness() << "%";
         }
     }
 }
@@ -518,32 +562,35 @@ void getTotalDistance(tours &population, cityMapCoords map[], int chromoIndex)
 {
     tourChroms currentChromo;  // Variable that allows access to any chromosome.
     double tempDistTotal = 0;  // Variable that holds the temporary total distance of a tour.
-    int tempProfitTotal = 0;  // Variable that holds the temporary total profit of the tour.
-    cityMapCoords currentCity;
+    int tempProfitTotal = 0;   // Variable that holds the temporary total profit of the tour.
+    cityMapCoords currentCity; // Variable to allow access to city coordinates and data.
 
     // Get a tour.
     population.getTour(chromoIndex, currentChromo);
 
     // Now add up all the distances and profits for the cities.
-    for(int i = 0; i <= maxCities - 1; i++)
+    // We use mod 25 as a way to offset our chromosome indexes back in the range of 0 - 24.
+    // This is because our chromosome indexes can get quite large, especially since we dynamically allocate space
+    // in our arrays.
+    for(int i = 0; i <= cities[chromoIndex % 25]; i++)
     {
-        currentCity = map[i];
-        if(i == maxCities - 1)  // If it is the last city.
+        currentCity = map[i];  // Mark the current city in the map.
+        if(i == cities[chromoIndex % 25])  // If it is the last city.
         {
-            currentCity = map[maxCities - 1];
+            currentCity = map[cities[chromoIndex % 25]];  // Get the current city (which should be our last in this case).
             tempDistTotal = currentChromo.getTotal();  // Get the total.
-            tempProfitTotal = currentChromo.getProfitTotal();
-            tempProfitTotal += currentCity.getProfit();
-            currentChromo.setProfitTotal(tempProfitTotal);
-            tempDistTotal += getDistance(map, currentChromo.getData(maxCities - 1), currentChromo.getData(0));  // Add final distance to the total.
+            tempProfitTotal = currentChromo.getProfitTotal();  // Get the total profit.
+            tempProfitTotal += currentCity.getProfit();  // Now add up the last city's profit.
+            currentChromo.setProfitTotal(tempProfitTotal);  // Set the profit total.
+            tempDistTotal += getDistance(map, currentChromo.getData(cities[chromoIndex % 25]), currentChromo.getData(0));  // Add final distance to the total.
             currentChromo.setTotal(tempDistTotal);  // Set the total.
         }
         else  // Otherwise, it is just another distance to add.
         {
             tempDistTotal = currentChromo.getTotal();  // Get the total.
-            tempProfitTotal = currentChromo.getProfitTotal();
-            tempProfitTotal += currentCity.getProfit();
-            currentChromo.setProfitTotal(tempProfitTotal);
+            tempProfitTotal = currentChromo.getProfitTotal();  // Get the total profit.
+            tempProfitTotal += currentCity.getProfit();  // Now add the current city's profit to the total profit.
+            currentChromo.setProfitTotal(tempProfitTotal);  // Set the profit total.
             tempDistTotal += getDistance(map, currentChromo.getData(i), currentChromo.getData(i + 1));  // Add that distance to the total.
             currentChromo.setTotal(tempDistTotal);  // Set the total.
         }
@@ -571,50 +618,5 @@ double getDistance(cityMapCoords map[], int firstCity, int secondCity)
     cityYDistance = pow(abs(cityOne.getY() - cityTwo.getY()), 2);  // Get the difference in Y-coordinate values.
 
     return sqrt(cityXDistance + cityYDistance);  // Now square root the result for our distance.
-
-}
-
-// Function that finds the minimum tour in a population.
-int minimum(tours &population)
-{
-    int popSize;  // Variable that holds the population size.
-    int winner = 0;  // Variable that holds the index of the winner.
-    tourChroms firstChrom;  // Variable that allows access to a chromosome.
-    tourChroms secondChrom;  // Variable that allows access to a chromosome.
-    bool foundNewWinner;  // Flag that indicates if we found a new winner.
-    bool done = false;  // Flag to signify if we are done checking for a winner.
-
-    do
-    {
-        foundNewWinner = false;  // We just started so there is no winner yet.
-
-        // Get the size of the population.
-        popSize = population.getTourCount();
-
-        // For however many chromosomes are in our population.
-        for(int i = 0; i <= popSize - 1; i++)
-        {
-            if(i != winner)  // Avoid self-comparison.
-            {
-                population.getTour(i, firstChrom);  // Grab the tour of the first chromosome.
-                population.getTour(winner, secondChrom);  // Grab the tour of the second chromsome.
-
-                if(abs(firstChrom.getTotal()) < abs(secondChrom.getTotal()))  // If our first tour is smaller...
-                {
-                    winner = i;  // We found a winner.
-                    foundNewWinner = true;
-                }
-            }
-        }
-
-        if(foundNewWinner == false)  // If no winner is found we just exit.
-        {
-            done = true;
-        }
-
-    }
-    while(!done);
-
-    return winner;  // Return the winner index.
 
 }

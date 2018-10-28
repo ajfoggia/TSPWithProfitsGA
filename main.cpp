@@ -1,6 +1,6 @@
 // Alex Foggia
 // This program uses a genetic algorithm to find a possible solution to an instance of
-// the Traveling Salesman Problem.
+// the Traveling Salesman Problem with Profits.
 // Two different types of selection: roulette & 2-tournament
 // Crossover: partially mapped
 // Mutation: simple exchange of two numbers in the permutation.
@@ -13,7 +13,7 @@
 
 int main()
 {
-    tours population;  // Create tours object to hold our population of chromosomes (tours).
+    tours population;                      // Create tours object to hold our population of chromosomes (tours).
     cityMapCoords coordinates[maxCities];  // Create an array of cityMapCoords objects to hold each city's coordinates.
 
     srand((unsigned)time(0));  // Seed the random number generator.

@@ -26,8 +26,7 @@ void    prepNextGen(tours &population);
 void    printBestFromPopulation(tours &population);
 int     getRandomNumber(int low, int high);
 void    getTotalDistance(tours &population, cityMapCoords map[], int chromoIndex);
-double getTProfit(cityMapCoords map[], int firstCity, int secondCity);
 double  getDistance(cityMapCoords map[], int firstCity, int secondCity);
-int     minimum(tours &population);
+
 
 #endif //QAPGENETICALGORITHM_MAINCODE_H
